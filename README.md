@@ -1,44 +1,13 @@
-# folatp
+# tableaux - This is an incomplete work in progress.
 
-FIXME: description
+## Tableaux Theorem Prover / Proof Assistant for First-Order Logic
+This is an implementation, written in Clojure, of a tableaux based automated theorem prover / proof assistant for first-order logic.  It is based on methods described in the book First-Order Logic and Automated Theorem Proving by Melvin Fitting (https://www.amazon.com/First-Order-Automated-Theorem-Proving-Computer/dp/0387945938).
 
-## Installation
+This is a console based application.  First-order logic formulas are encoded and manipulated as lists of symbols, such as:
 
-Download from http://example.com/FIXME.
+'(not ((exists w (forall x (R x w (f x w)))) imp (exists w (forall x (exists y (Rx w y))))))
 
-## Usage
+In the tableaux proof tree, they are printed in a more traditional fashion, such as:
 
-FIXME: explanation
+¬((∃w)(∀x)R(x,w,f(x,w)) ⊃ (∃w)(∀x)(∃y)Rx(w,y))
 
-    $ java -jar folatp-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2019 FIXME
-
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License 2.0 which is available at
-http://www.eclipse.org/legal/epl-2.0.
-
-This Source Code may also be made available under the following Secondary
-Licenses when the conditions for such availability set forth in the Eclipse
-Public License, v. 2.0 are satisfied: GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or (at your
-option) any later version, with the GNU Classpath Exception which is available
-at https://www.gnu.org/software/classpath/license.html.
