@@ -1,8 +1,6 @@
 ;;;; function for printing a tree structure in ASCII
-;;;; (general purpose, but for eventual use in a tableaux based 
-;;;; proof assistant / theorem prover)
 
-(ns tree-printer)
+(ns folatp.tree-printer)
 
 (defn touch-distance
   [left-linevec right-linevec]
@@ -78,19 +76,4 @@
 )))
 
 (defn print-tree [tree] (print-tree-lines (build-tree-lines tree)))
-
-(defn random-tree
-  ([n]
-   (random-tree 1 n))
-  ([first-val last-val]
-   (if (> first-val last-val)
-     nil
-     (let [tree-size (inc (- last-val first-val))
-           left-count (rand-int tree-size)]
-       {:label (str (+ first-val left-count)) 
-        :left (random-tree first-val (dec (+ first-val left-count))) 
-        :right (random-tree (+ 1 first-val left-count) last-val)}
-       ))))
-
-
 
