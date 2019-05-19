@@ -42,12 +42,34 @@
            :a2 ((:a2 (get first 1)) (:a2 match))}
           (recur rest))))))
 
+;;; the secondary connectives are equivalent to a disjunction of two conjunctions
+;;; A iff B --> (A and B) or ((not A) and (not B))
+;;; A xor B --> (A and (not B)) or ((not A) and B)
+(defn secondary
+  [f]
+  (or 
+   (let [match (or (matches '(:f1 iff :f2) f) (matches '(not (:f1 xor :f2)) f))] 
+     (and match
+          (let [f1 (:f1 match)
+                f2 (:f2 match)]
+            {:b1 (list f1 'and f2)
+             :b2 (list (list 'not f1) 'and (list 'not f2))}
+            )))
+   (let [match (or (matches '(:f1 xor :f2) f) (matches '(not (:f1 iff :f2)) f))] 
+     (and match
+          (let [f1 (:f1 match)
+                f2 (:f2 match)]
+            {:b1 (list f1 'and (list 'not f2))
+             :b2 (list (list 'not f1) 'and f2)}
+            )))
+   ))
+
 ;;; returns false, or a map containing the two components of the disjunction
 (defn beta
   [f]
   (loop [betas betas]
     (if (empty? betas)
-      false
+      (secondary f)
       (let [[first & rest] betas
             match (matches (get first 0) f)]
         (if match

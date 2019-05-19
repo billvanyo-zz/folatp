@@ -20,6 +20,10 @@
   (is (= false                               (alpha '(not ((P x) nor (Q x))))))
   (is (= false                               (alpha '(not ((P x) nimp (Q x))))))
   (is (= false                               (alpha '(not ((P x) nif (Q x))))))
+  (is (= false                               (alpha '((P x) iff (Q x)) )))
+  (is (= false                               (alpha '((P x) xor (Q x)) )))
+  (is (= false                               (alpha '(not ((P x) iff (Q x))) )))
+  (is (= false                               (alpha '(not ((P x) xor (Q x))) )))
 )
 
 (deftest test-beta-decomposiotion
@@ -39,6 +43,10 @@
   (is (= '{:b1 (P x), :b2 (Q x)}             (beta '(not ((P x) nor (Q x))) )))
   (is (= '{:b1 (not (P x)), :b2 (Q x)}       (beta '(not ((P x) nimp (Q x))) )))
   (is (= '{:b1 (P x), :b2 (not (Q x))}       (beta '(not ((P x) nif (Q x))) )))
+  (is (= '{:b1 ((P x) and (Q x)), :b2 ((not (P x)) and (not (Q x)))}   (beta '((P x) iff (Q x)) )))
+  (is (= '{:b1 ((P x) and (not (Q x))), :b2 ((not (P x)) and (Q x))}   (beta '((P x) xor (Q x)) )))
+  (is (= '{:b1 ((P x) and (not (Q x))), :b2 ((not (P x)) and (Q x))}   (beta '(not ((P x) iff (Q x))) )))
+  (is (= '{:b1 ((P x) and (Q x)), :b2 ((not (P x)) and (not (Q x)))}   (beta '(not ((P x) xor (Q x))) )))
 )
   
 (deftest test-gamma-decomposition
