@@ -5,9 +5,9 @@ This is an implementation, written in Clojure, of a tableaux based automated the
 
 This is a console based application.  First-order logic formulas are encoded and manipulated as lists of symbols, such as:
 
-'(not ((exists w (forall x (R x w (f x w)))) imp (exists w (forall x (exists y (Rx w y))))))
+'(not ((exists w (forall x (R x w (f x w)))) imp (exists w (forall x (exists y (R x w y))))))
 
 In the tableaux proof tree, they are printed in a more traditional fashion, such as:
 
-¬((∃w)(∀x)R(x,w,f(x,w)) ⊃ (∃w)(∀x)(∃y)Rx(w,y))
+¬((∃w)(∀x)R(x,w,f(x,w)) ⊃ (∃w)(∀x)(∃y)R(x,w,y))
 
