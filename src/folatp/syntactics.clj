@@ -64,6 +64,10 @@
    :exists \u2203
    :possibly \u25C7
    :necessarily \u25FB
+   :alpha \u03B1
+   :beta \u03B2
+   :gamma \u03B3
+   :delta \u03B4
    })
 
 ;;; a map of digit subscripts, for printing subscripted symbols
@@ -143,4 +147,30 @@
           (if match
             ((get first 1) print-formula match)
             (recur rest)))))))
+
+
+
+
+(defn print-derivation 
+  [deriv id]
+  (str id "="
+       (cond
+         (= deriv 'premise) "premise"
+         (= deriv 'goal) "goal"
+         (= (first deriv) 'double-negative) (str (:not sym) (:not sym) "(" (second deriv) ")")
+         (= (first deriv) 'alpha1) (str (:alpha sym) (get sub "1") "(" (second deriv) ")")
+         (= (first deriv) 'alpha2) (str (:alpha sym) (get sub "2") "(" (second deriv) ")")
+         (= (first deriv) 'beta1) (str (:beta sym) (get sub "1") "(" (second deriv) ")")
+         (= (first deriv) 'beta2) (str (:beta sym) (get sub "2") "(" (second deriv) ")")
+         (= (first deriv) 'gamma) (str (:gamma sym) "(" (second deriv) ")")
+         (= (first deriv) 'delta) (str (:delta sym) "(" (second deriv) ")")
+         :else deriv
+         )
+       ))
+
+(defn print-formula-struct
+  [fmla-struct]
+  (str (print-formula (:fmla fmla-struct)) " " 
+       (print-derivation (:deriv fmla-struct) (:id fmla-struct)))
+)
 

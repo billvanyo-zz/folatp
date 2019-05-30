@@ -75,7 +75,8 @@
           root-dist (if (even? touch-dist) (+ touch-dist 3) (+ touch-dist 2))
           ]
           ; now create root line and branches, and zip the sub trees together
-      (combine-root-and-subtrees root-label root-dist left-lines right-lines))))
+      (combine-root-and-subtrees root-label root-dist left-lines right-lines)))
+)
 
 
 ;;; takes vector of {:l "..." :loff -5 :roff 7}
