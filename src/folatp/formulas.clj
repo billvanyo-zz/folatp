@@ -1,5 +1,39 @@
+;;;; functions for identifying formulas by type and for decomposing formulas
+;;;; types: :atomic, :double-negated, :alpha, :beta, :gamma, :delta
+
 (ns folatp.formulas
   (:require [folatp.syntactics :refer :all]))
+
+(def duals
+  {:alpha :beta
+   :beta :alpha
+   :secondary :secondary
+   :gamma :delta
+   :delta :gamma
+   :atomic :atomic
+   }
+)
+
+(defn fmla-type-subr
+  [fmla]
+  (cond
+    (= 'not (first fmla)) (if (= 'not (first (second fmla))) 
+                            :double-negated 
+                            ((fmla-type-subr (second fmla)) duals))
+    (= 'forall (first fmla)) :gamma
+    (= 'exists (first fmla)) :delta
+    (contains? #{'and 'nor 'nimp 'nif} (second fmla)) :alpha
+    (contains? #{'or 'imp 'if 'nand} (second fmla)) :beta
+    (contains? #{'xor 'iff} (second fmla)) :secondary
+    :else :atomic
+    )
+)
+
+(defn fmla-type
+  [fmla]
+  (let [ftype (fmla-type-subr fmla)]
+    (if (= ftype :secondary) :beta ftype))
+)
 
 (defn negate [f] (list 'not f))
 

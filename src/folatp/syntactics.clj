@@ -36,7 +36,7 @@
      (symbol? pattern) (and (= pattern expr) map)
 
      (symbol? expr) false
-     (and (list? pattern) (list? expr)) 
+     (and (seq? pattern) (seq? expr)) 
      (cond
        (and (empty? pattern) (empty? expr)) map
        (or (empty? pattern) (empty? expr)) false
@@ -118,6 +118,12 @@
   (let [name (if (= \? (get (name s) 0)) (subs (name s) 1) (name s))]
     (clojure.string/replace name #"[0123456789]" #(str (get sub %1)))))
 
+(defn print-constant
+  [s]
+  (clojure.string/replace 
+   (clojure.string/upper-case (name s)) 
+   #"[0123456789]" #(str (get sub %1))))
+
 (declare print-formula)
 
 ;;; Generates comma separated list for predicate and function applications.
@@ -139,8 +145,10 @@
     (print-symbol f)
     (loop [prttab print-table]
       (if (empty? prttab) ; it's either a function, predicate or something unexpected
-        (if (list? f) ; this ignores unexpected case of empty list
-          (str (print-symbol (first f)) "(" (print-params (rest f)) ")")
+        (if (seq? f) ; this ignores unexpected case of empty list
+          (if (empty? (rest f)) ; 0-argument function prints as uppsercase constant
+            (print-constant (first f))
+            (str (print-symbol (first f)) "(" (print-params (rest f)) ")"))
           (str " ??>" f "<?? ")) ; ad hoc indicator of problem that won't ever happen
         (let [[first & rest] prttab
               match (matches (get first 0) f)]
@@ -156,21 +164,21 @@
   (str id "="
        (cond
          (= deriv 'premise) "premise"
-         (= deriv 'goal) "goal"
-         (= (first deriv) 'double-negative) (str (:not sym) (:not sym) "(" (second deriv) ")")
-         (= (first deriv) 'alpha1) (str (:alpha sym) (get sub "1") "(" (second deriv) ")")
-         (= (first deriv) 'alpha2) (str (:alpha sym) (get sub "2") "(" (second deriv) ")")
-         (= (first deriv) 'beta1) (str (:beta sym) (get sub "1") "(" (second deriv) ")")
-         (= (first deriv) 'beta2) (str (:beta sym) (get sub "2") "(" (second deriv) ")")
-         (= (first deriv) 'gamma) (str (:gamma sym) "(" (second deriv) ")")
-         (= (first deriv) 'delta) (str (:delta sym) "(" (second deriv) ")")
+         (= deriv 'goal) (str (:not sym) "goal")
+         (= (first deriv) 'double-negative) (str (:not sym) (:not sym) "." (second deriv))
+         (= (first deriv) 'alpha1) (str (:alpha sym) (get sub "1") "." (second deriv))
+         (= (first deriv) 'alpha2) (str (:alpha sym) (get sub "2") "." (second deriv))
+         (= (first deriv) 'beta1) (str (:beta sym) (get sub "1") "." (second deriv))
+         (= (first deriv) 'beta2) (str (:beta sym) (get sub "2") "." (second deriv))
+         (= (first deriv) 'gamma) (str (:gamma sym) "." (second deriv))
+         (= (first deriv) 'delta) (str (:delta sym) "." (second deriv))
          :else deriv
          )
        ))
 
 (defn print-formula-struct
-  [fmla-struct]
-  (str (print-formula (:fmla fmla-struct)) " " 
-       (print-derivation (:deriv fmla-struct) (:id fmla-struct)))
-)
+  ([fmla-struct]
+   (str (print-formula (:fmla fmla-struct)) " " 
+        (print-derivation (:deriv fmla-struct) (:id fmla-struct))))
+  )
 

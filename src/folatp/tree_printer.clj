@@ -72,7 +72,7 @@
           right-lines (build-tree-lines (:right tree))
           ; calculate "touch distance" for the two lists of lines
           touch-dist (touch-distance left-lines right-lines)
-          root-dist (if (even? touch-dist) (+ touch-dist 3) (+ touch-dist 2))
+          root-dist (if (even? touch-dist) (+ touch-dist 4) (+ touch-dist 3))
           ]
           ; now create root line and branches, and zip the sub trees together
       (combine-root-and-subtrees root-label root-dist left-lines right-lines)))

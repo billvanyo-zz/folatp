@@ -5,21 +5,29 @@
 
 (deftest test-init-fmla-structs
   (is (= '({:id 1,
+            :type :gamma
             :fmla (forall x (forall y (forall z (((R x y) and (R y z)) imp (R x z))))),
-            :deriv (axiom 1)
-           	:free-vars ()}
+            :deriv premise
+           	:free-vars ()
+            :dependencies #{}}
            {:id 2,
+            :type :gamma
             :fmla (forall x (forall y ((R x y) imp (R y x)))),
-            :deriv (axiom 2)
-            :free-vars ()}
+            :deriv premise
+            :free-vars ()
+            :dependencies #{}}
            {:id 3, 
+            :type :gamma
             :fmla (forall x (exists y (R x y))), 
-            :deriv (axiom 3)
-            :free-vars ()}
+            :deriv premise
+            :free-vars ()
+            :dependencies #{}}
            {:id 4, 
+            :type :delta
             :fmla (not (forall x (R x x))), 
-            :deriv (negated goal)
-            :free-vars ()})
+            :deriv goal
+            :free-vars ()
+            :dependencies #{}})
          (init-fmla-structs (list transitivity symmetry nontriviality) reflexivity))))
 
 
