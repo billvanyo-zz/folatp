@@ -28,7 +28,7 @@
     (seq? term) (or (occurs-in var (first term)) (occurs-in var (rest term)))
     :else (= var term)))
 
-;;; replace var with val throughout term - TODO: test/debug 
+;;; replace var with val throughout term  
 (defn replace-in-term
   [term var val]
   (cond
@@ -142,7 +142,6 @@
                   (= (get sub2 var var) (apply-subst val sub2)))
                 sub1
                 )]
-    ;(when result (println "more-general") (println str1) (println str2))
     result
     )
 )
@@ -233,19 +232,6 @@
        }
       false
       )))
-
-;;; unify a substitution with multiple other substitutions (1 to n)
-(defn unify-subst-strs-1ton
-  [substr substr-lst]
-  (reduce
-   (fn [substrs sub]
-     (let [beta-merge-sub (unify-subst-structures substr sub)]
-       (if beta-merge-sub
-         (cons beta-merge-sub substrs)
-         substrs
-         )))
-   ()
-   substr-lst))
 
 (defn cartesian-sum-of-subst-sets
   [set1 set2]

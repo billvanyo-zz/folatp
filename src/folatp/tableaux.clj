@@ -1,7 +1,6 @@
 (ns folatp.tableaux
   (:require [folatp.formulas :refer :all]
             [folatp.syntactics :refer :all]
-            [folatp.utils :refer :all]
             [folatp.tree-printer :refer :all]
             [folatp.gensymbols :refer :all]
             [folatp.unify :refer :all]
@@ -44,7 +43,7 @@
   [var val fmla]
   (if (= fmla ()) 
     ()
-    (if (symbol? fmla)
+    (if (not (seq? fmla))
       (if (= var fmla) val fmla)
       (conj (substitute var val (rest fmla)) (substitute var val (first fmla))))))
 
@@ -101,7 +100,7 @@
       (= :gamma ftype) 
       (let [gamma (gamma fmla)
             new-var (gensymbol (:v gamma))
-            gamma-instance (substitute (:v gamma) new-var (:f gamma))]
+            gamma-instance (substitute (:v gamma) new-var (:f gamma))] 
         {:rule 'gamma
          :fmla {:id (inc fmla-count) 
                 :type (fmla-type gamma-instance)
@@ -135,7 +134,6 @@
 ;;; 2) :branch-q - list of branch structures for fair processing of branches
 ;;; 3) :fmla-count - count of fmlas in tree
 ;;; 4) :gamma-count - how many gamma rule applications have been done
-;;; TODO - make fmla-q on each branch a priority queue based on type of fmla
 (defn init-tableau
   [axioms goal]
   (let [init-fmlas (init-fmla-structs axioms goal)
@@ -169,7 +167,6 @@
 
         rule-application (apply-rule fmla-struct fmla-count)
         rule (:rule rule-application)]
-    ;(println leaf-index rule (:fmla fmla-struct))
     (cond
       (= rule 'alpha)
       ;; add a1 & a2 to leaf
@@ -245,27 +242,15 @@
       ;; attempt to unify negation of this formula with a prior atomic formula 
       ;; on this branch
       ;; and propagate substitution toward root
-
-      (do
-        (when (contains? #{13 18 21 22} (:id fmla-struct))
-          ;(println fmla-struct)
-          )
-
-
-        (let [closing-substs (closing-substitutions fmla-struct atomic-fmlas)]
-
-          (when (contains? #{13 18 21 22} (:id fmla-struct))
-            ;(println "closing-substs =" closing-substs)
-           )
-
-          {:tree-map (propagate-substs leaf-index closing-substs tree-map) 
-           :branch-q (conj (pop branch-q) 
-                           (assoc select-branch
-                                  :fmla-q (pop-fmla-queue fmla-q)
-                                  :atomic-fmlas (conj atomic-fmlas fmla-struct)))  
-           :fmla-count fmla-count
-           :gamma-count gamma-count
-           }))
+      (let [closing-substs (closing-substitutions fmla-struct atomic-fmlas)]
+        {:tree-map (propagate-substs leaf-index closing-substs tree-map) 
+         :branch-q (conj (pop branch-q) 
+                         (assoc select-branch
+                                :fmla-q (pop-fmla-queue fmla-q)
+                                :atomic-fmlas (conj atomic-fmlas fmla-struct)))  
+         :fmla-count fmla-count
+         :gamma-count gamma-count
+         })
       )))
 
 
@@ -273,7 +258,6 @@
 ;;; much as possible
 (defn propagate-substs
   [index substs tree-map]
-  ;(println "propagation starting at node" index)
   (loop [index index
          substs substs
          tree-map tree-map]
@@ -283,8 +267,6 @@
             add-result (add-substs-to-mguset substs prior-substs)
             added-substs (:added add-result)
             displaced-substs (:displaced add-result)]
-        ;(when (empty? added-substs) (println "substitutions not added"))
-        ;(when (not (empty? displaced-substs)) (println "substitutions displaced"))
         (if (empty? added-substs)
           (if (empty? displaced-substs) 
             tree-map
@@ -298,15 +280,6 @@
                     cart-sum (cartesian-sum-of-subst-sets 
                               added-substs 
                               sibling-substs)]
-                (when (and false (empty? cart-sum)) 
-                  (println "propagation ended at node" index " sibling=" (sibling index))
-                  (println "added-substs" added-substs)
-                  (println "sibling-substs" sibling-substs)
-                  )
-                (when (and false (not (empty? cart-sum))
-                       (println "cart-sum=" cart-sum)
-                       (println "node" index "sibling=" (sibling index)))
-                  )
                 (recur (parent index) cart-sum partially-updated-tree-map)))))))))
 
 ;;; convert to structure suitable for printing
@@ -336,35 +309,6 @@
              :right nil}
             )))))))
 
-(defn convert-tree-map-w-substs
-  ([tree-map]
-   (convert-tree-map-w-substs tree-map 0))
-
-  ([tree-map root-index]
-   (if (empty? (get tree-map root-index))
-     nil
-     (let [left-tree (convert-tree-map-w-substs tree-map (left root-index))
-           right-tree (convert-tree-map-w-substs tree-map (right root-index))
-
-           root-fmlas (reverse (:fmlas (get tree-map root-index)))
-           substs (:subst (:closing-substs (get tree-map root-index)))
-           tree {:label (str substs) 
-                 :left left-tree
-                 :right right-tree}]
-;(println "SUBSTS>>>>" substs)
-       (loop [rest-fmlas root-fmlas
-              tree tree]
-         (if (empty? rest-fmlas)
-           tree
-           (recur
-            (rest rest-fmlas)
-            {:label (print-formula-struct (:fmla (first rest-fmlas))) 
-             :left tree
-             :right nil}
-            )))))))
-
-
-
 (defn pruned-tree-map
   [tree-map fmla-ids]
   (loop [map tree-map
@@ -380,50 +324,31 @@
            pruned-map
            (assoc pruned-map index {:fmlas filtered-fmlas})))))))
 
-(defn build-subst-tree
-  [tableau])
 
 (defn attempt-proof
   [tableau max-gamma]
   (reset-gensymbols)
   (loop [tableau tableau
          counter 1]
-    ;(when (= 0 (mod counter 100)) (print counter " "))
-   ;(print-tree (convert-tree-map (:tree-map tableau) nil))
-    ;(read-line)
-   ;(println "---------------------------------------------------------------------------")
     (cond
       (not (empty? (:closing-substs (get (:tree-map tableau) 0)))) ; success
-      ;; TODO - if more than one substitution, print alternate proofs
+      ;; TODO - if more than one substitution, print alternate proofs or shortest proof?
       (let [closing-subst (first (:closing-substs (get (:tree-map tableau) 0)))
             relevant-fmla-ids (:dependencies closing-subst)
             pruned-tree (pruned-tree-map (:tree-map tableau) relevant-fmla-ids)
             printable-tree (convert-tree-map pruned-tree (:subst closing-subst))
             ]
-        ;(print-tree (convert-tree-map (:tree-map tableau) nil))
         (println)
         (print-tree printable-tree)
-        ;(println "============")
-        ;(print-tree (convert-tree-map (:tree-map tableau) nil))
-        ;(println "============")
+        (println)
         ;(print-tree (convert-tree-map (:tree-map tableau) (:subst closing-subst)))
-        ;(println relevant-fmla-ids)
-        ;(clojure.pprint/pprint closing-subst)
-        ;(print-tree (convert-tree-map-w-substs (:tree-map tableau)))
-        ;(clojure.pprint/pprint tableau)
-        
-        )
+        true)
 
       (= (:gamma-count tableau) max-gamma) ; failure
       (do
-        ;(println "XXXXXXXXXXXX")
         ;(print-tree (convert-tree-map (:tree-map tableau) nil))
-        ;(print-tree (convert-tree-map-w-substs (:tree-map tableau)))
-        ;(clojure.pprint/pprint tableau)
-        ;(println (tableau-atomics-by-branch tableau))
-        (list 'gamma-count max-gamma))
+        (list 'gamma-count max-gamma 'reached))
 
       :else
-      (recur (single-step tableau) (inc counter))
-      )))
+      (recur (single-step tableau) (inc counter)))))
 

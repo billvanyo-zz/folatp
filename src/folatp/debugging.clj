@@ -1,7 +1,6 @@
 (ns folatp.debugging
   (:require [folatp.formulas :refer :all]
             [folatp.syntactics :refer :all]
-            [folatp.utils :refer :all]
             [folatp.tree-printer :refer :all]
             [folatp.gensymbols :refer :all]
             [folatp.unify :refer :all]

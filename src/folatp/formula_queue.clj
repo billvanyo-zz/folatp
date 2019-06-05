@@ -1,7 +1,7 @@
 ;;;; priority queue for formula structures
 
 ;;;; formula structures are wrapped in a structure that contains a counter for fifo ordering
-;;;; of used gamma formulas
+;;;; of used gamma formulas.
 
 (ns folatp.formula-queue
   (:require [folatp.formulas :refer :all]
@@ -46,8 +46,6 @@
 
 (defn enqueue-fmla
   [fqueue fmla]
-  ;(println "   enqueue-fmla: fqueue" fqueue)
-  ;(println "   enqueue-fmla: fmla" fmla)
   (let [counter (:counter fqueue)
         wrapped {:counter counter :fstr fmla}]
     {:counter (inc counter)
@@ -55,8 +53,6 @@
 
 (defn enqueue-fmlas
   [fqueue & fmlas]
-  ;(println "enqueue-fmlas: fqueue" fqueue)
-  ;(println "enqueue-fmlas: fmlas" fmlas)
   (loop [fqueue fqueue
          fmlas fmlas]
     (if (empty? fmlas)
@@ -65,11 +61,9 @@
        (enqueue-fmla fqueue (first fmlas))
        (rest fmlas)))))
 
-
 (defn new-formula-queue
   [& fstructs]
   (apply enqueue-fmlas (empty-formula-queue) fstructs))
-
 
 (defn enqueue-used-gamma
   [fqueue gamma]
