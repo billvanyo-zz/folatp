@@ -112,6 +112,9 @@ Note that the numeric labels are not contiguous because the final tree is "prune
 2) Notation will be added at the ends of branches to indicate which formula it closes with.
 3) Skolem functions in the final output will be replaced with unique constants (this may be an option; some may prefer to see the skolemization in the output).
 4) Numeric formula labels will be renumbered in the end to keep them contiguous.
+5) Add the equality relation.
+6) Concurrency (probably a significant rewrite).
+7) Finding models (the goal is not a theorem if there's a model that satisfies the axioms and the negated goal).
 
 
 
