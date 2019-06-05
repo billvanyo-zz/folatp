@@ -114,7 +114,6 @@ Note that the numeric labels are not contiguous because the final tree is "prune
 4) Numeric formula labels will be renumbered in the end to keep them contiguous.
 5) Add the equality relation.
 6) Concurrency (probably a significant rewrite).
-7) Finding models (the goal is not a theorem if there's a model that satisfies the axioms and the negated goal).
 
 
 
